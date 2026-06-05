@@ -1,0 +1,77 @@
+
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>Reporte de Auditoría de Ciberseguridad</title>
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f4f7f6; }
+            .header { background-color: #343a40; color: white; padding: 20px; border-radius: 8px 8px 0 0; text-align: center; }
+            .status-banner { background-color: #dc3545; color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.2em; }
+            .section { background: white; padding: 20px; margin-top: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+            h2 { color: #007bff; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+            .alert { color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 10px; border-radius: 4px; margin-bottom: 10px; }
+            .success { color: #155724; background-color: #d4edda; border: 1px solid #c3e6cb; padding: 10px; border-radius: 4px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th, td { text-align: left; padding: 12px; border-bottom: 1px solid #ddd; }
+            th { background-color: #f8f9fa; }
+            .footer { text-align: center; margin-top: 30px; font-size: 0.8em; color: #777; }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>Auditoría de Seguridad Digital</h1>
+            <p>Preparado para: <strong>Empresa de Prueba</strong></p>
+            <p>Generado el: 2026-06-05 11:07:59</p>
+        </div>
+
+        <div class="status-banner">
+            ESTADO FINAL: ACCION REQUERIDA
+        </div>
+
+        <div class="section">
+            <h2>Resumen Ejecutivo</h2>
+            <ul>
+                <li><strong>Conexiones no autorizadas:</strong> 2</li>
+                <li><strong>Archivos maliciosos:</strong> 0</li>
+                <li><strong>Alertas heurísticas:</strong> 3</li>
+                <li><strong>Procesos sospechosos:</strong> 0</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Conexiones de Red</h2>
+            <div class="alert">Se detectaron 2 conexiones externas no autorizadas.</div>
+            <table><thead><tr><th>Process name</th><th>Pid</th><th>Laddr</th><th>Raddr</th><th>Status</th></tr></thead><tbody><tr><td>Unknown</td><td>None</td><td>192.168.0.2:22</td><td>192.168.0.1:41484</td><td>ESTABLISHED</td></tr><tr><td>Unknown</td><td>None</td><td>192.168.0.2:22</td><td>192.168.0.1:58898</td><td>ESTABLISHED</td></tr></tbody></table>
+        </div>
+
+        <div class="section">
+            <h2>Análisis de Malware</h2>
+            <div class="alert">Se encontraron 3 amenazas potenciales en el sistema.</div>
+
+
+
+
+            <h3>Hallazgos Heurísticos</h3>
+            <table><thead><tr><th>Path</th><th>Findings</th></tr></thead><tbody><tr><td>./verify_remediation.py</td><td>subprocess.Popen(</td></tr><tr><td>./xss_test.txt</td><td>&lt;script&gt;</td></tr><tr><td>./create_xss_test.py</td><td>&lt;script&gt;</td></tr></tbody></table>
+        </div>
+
+        <div class="section">
+            <h2>Procesos en Ejecución</h2>
+            <div class="success">Todos los procesos analizados parecen legítimos.</div>
+
+        </div>
+
+        <div class="section">
+            <h2>Recomendaciones de Seguridad</h2>
+            <ul>
+                <li><strong>Cierre de Puertos:</strong> Se detectaron conexiones a IPs no autorizadas. Revise las reglas de su firewall y termine los procesos asociados.</li><li><strong>Limpieza de Malware:</strong> Se encontraron archivos sospechosos. Ponga estos archivos en cuarentena o elimínelos si no son necesarios.</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>Este reporte fue generado automáticamente por SD-Ciberseguridad-Azure.</p>
+            <p>Para soporte técnico o limpieza de sistemas, contacte a su administrador.</p>
+        </div>
+    </body>
+    </html>

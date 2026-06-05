@@ -1,0 +1,19 @@
+{
+    "client_name": "Empresa de Prueba",
+    "AUTHORIZED_IPS": [
+        "127.0.0.1",
+        "::1",
+        "0.0.0.0"
+    ],
+    "SUSPICIOUS_KEYWORDS": [
+        "eval(",
+        "base64.b64decode(",
+        "os.system(",
+        "subprocess.Popen(",
+        "subprocess.call(",
+        "requests.get(",
+        "socket.socket(",
+        "__import__('os')",
+        "<script>"
+    ]
+}

@@ -1,0 +1,55 @@
+{
+    "client_name": "Empresa de Prueba",
+    "timestamp": "2026-06-05T11:07:59.308740",
+    "summary": {
+        "unauthorized_connections": 2,
+        "malicious_files": 0,
+        "suspicious_heuristics": 3,
+        "suspicious_processes": 0
+    },
+    "details": {
+        "client_name": "Empresa de Prueba",
+        "unauthorized_conns": [
+            {
+                "laddr": "192.168.0.2:22",
+                "raddr": "192.168.0.1:41484",
+                "status": "ESTABLISHED",
+                "pid": null,
+                "process_name": "Unknown",
+                "remote_ip": "192.168.0.1"
+            },
+            {
+                "laddr": "192.168.0.2:22",
+                "raddr": "192.168.0.1:58898",
+                "status": "ESTABLISHED",
+                "pid": null,
+                "process_name": "Unknown",
+                "remote_ip": "192.168.0.1"
+            }
+        ],
+        "malware_results": {
+            "malicious_files": [],
+            "suspicious_heuristics": [
+                {
+                    "path": "./verify_remediation.py",
+                    "findings": [
+                        "subprocess.Popen("
+                    ]
+                },
+                {
+                    "path": "./xss_test.txt",
+                    "findings": [
+                        "<script>"
+                    ]
+                },
+                {
+                    "path": "./create_xss_test.py",
+                    "findings": [
+                        "<script>"
+                    ]
+                }
+            ],
+            "suspicious_processes": []
+        }
+    }
+}
