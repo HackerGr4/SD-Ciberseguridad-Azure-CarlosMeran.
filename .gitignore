@@ -216,3 +216,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Generated audit reports may contain sensitive host metadata
+scan_report.json
+scan_report.html
+demo-output/

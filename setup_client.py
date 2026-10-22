@@ -1,38 +1,21 @@
 import json
-import os
+from configuration import DEFAULT_CONFIG_PATH, validate_config
 
-def setup_client(client_name, extra_authorized_ips=None):
-    """Prepares the environment for a new client audit."""
-    print(f"--- CONFIGURANDO ENTORNO PARA: {client_name} ---")
 
-    config = {
-        "client_name": client_name,
-        "AUTHORIZED_IPS": [
-            "127.0.0.1",
-            "::1",
-            "0.0.0.0"
-        ],
-        "SUSPICIOUS_KEYWORDS": [
-            "eval(",
-            "base64.b64decode(",
-            "os.system(",
-            "subprocess.Popen(",
-            "subprocess.call(",
-            "requests.get(",
-            "socket.socket(",
-            "__import__('os')"
-        ]
-    }
+def setup_client(client_name, extra_authorized_ips=None, config_path=None):
+    """Create an observation-only policy, never enable enforcement implicitly."""
+    config = validate_config({
+        'client_name': client_name,
+        'AUTHORIZED_IPS': ['127.0.0.0/8', '::1/128'] + list(extra_authorized_ips or []),
+        'BLOCKED_IPS': [], 'ENFORCE_ALLOWLIST': False,
+        'SUSPICIOUS_KEYWORDS': [], 'PROCESS_WATCHLIST': [],
+    })
+    path = config_path or DEFAULT_CONFIG_PATH
+    # Do not silently overwrite a reviewed policy.
+    with open(path, 'x', encoding='utf-8') as stream:
+        json.dump(config, stream, indent=4, ensure_ascii=False)
+    return str(path)
 
-    if extra_authorized_ips:
-        config["AUTHORIZED_IPS"].extend(extra_authorized_ips)
 
-    with open("config.json", "w") as f:
-        json.dump(config, f, indent=4)
-
-    print(f"[+] Archivo config.json generado para {client_name}.")
-    print("[!] El sistema está listo para ejecutar 'python3 main.py'.")
-
-if __name__ == "__main__":
-    name = input("Nombre del cliente: ")
-    setup_client(name)
+if __name__ == '__main__':
+    setup_client(input('Nombre del cliente: '))

@@ -1,9 +1,8 @@
 {
     "client_name": "Empresa de Prueba",
     "AUTHORIZED_IPS": [
-        "127.0.0.1",
-        "::1",
-        "0.0.0.0"
+        "127.0.0.0/8",
+        "::1/128"
     ],
     "SUSPICIOUS_KEYWORDS": [
         "eval(",
@@ -15,5 +14,8 @@
         "socket.socket(",
         "__import__('os')",
         "<script>"
-    ]
+    ],
+    "BLOCKED_IPS": [],
+    "ENFORCE_ALLOWLIST": false,
+    "PROCESS_WATCHLIST": []
 }

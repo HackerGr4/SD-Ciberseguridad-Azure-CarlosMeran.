@@ -1,68 +1,77 @@
+"""Read-only network policy observations, never proof of malware."""
 import psutil
-import socket
-import json
-import os
+from configuration import load_config, parse_address, parse_network, validate_config
 
-def load_config():
-    config_path = 'config.json'
-    if os.path.exists(config_path):
-        with open(config_path, 'r') as f:
-            return json.load(f)
-    return {"AUTHORIZED_IPS": ["127.0.0.1", "::1", "0.0.0.0"]}
 
-CONFIG = load_config()
-AUTHORIZED_IPS = CONFIG.get("AUTHORIZED_IPS", ["127.0.0.1", "::1", "0.0.0.0"])
+def process_identity(process):
+    """Use the same Process object and reject an exited/recycled identity."""
+    identity = {
+        'pid': process.pid,
+        'create_time': process.create_time(),
+        'name': process.name(),
+        'exe': process.exe(),
+        'username': process.username(),
+    }
+    if not process.is_running():
+        raise psutil.NoSuchProcess(process.pid)
+    return identity
+
 
 def get_active_connections():
-    """Returns a list of active network connections."""
+    # AccessDenied propagates: an incomplete scan must not look like a clean scan.
     connections = []
-    try:
-        for conn in psutil.net_connections(kind='inet'):
-            laddr = f"{conn.laddr.ip}:{conn.laddr.port}" if conn.laddr else "N/A"
-            raddr = f"{conn.raddr.ip}:{conn.raddr.port}" if conn.raddr else "LISTEN"
-            status = conn.status
-            pid = conn.pid
-
-            # Get process name if possible
-            process_name = "Unknown"
-            if pid:
-                try:
-                    process_name = psutil.Process(pid).name()
-                except (psutil.NoSuchProcess, psutil.AccessDenied):
-                    pass
-
-            connections.append({
-                'laddr': laddr,
-                'raddr': raddr,
-                'status': status,
-                'pid': pid,
-                'process_name': process_name,
-                'remote_ip': conn.raddr.ip if conn.raddr else None
-            })
-    except psutil.AccessDenied:
-        print("Error: Access denied to network connections. Try running as sudo/admin.")
-
+    for conn in psutil.net_connections(kind='inet'):
+        identity = None
+        if conn.pid:
+            try:
+                identity = process_identity(psutil.Process(conn.pid))
+            except (psutil.Error, OSError):
+                pass  # Keep the observation, but make remediation ineligible.
+        connections.append({
+            'laddr': str(conn.laddr) if conn.laddr else 'N/A',
+            'raddr': str(conn.raddr) if conn.raddr else 'LISTEN',
+            'status': conn.status,
+            'pid': conn.pid,
+            'process_name': identity['name'] if identity else 'Unknown',
+            'process_identity': identity,
+            'remote_ip': conn.raddr.ip if conn.raddr else None,
+            'remote_port': conn.raddr.port if conn.raddr else None,
+        })
     return connections
 
-def scan_network():
-    """Scans for unauthorized network connections."""
-    active_conns = get_active_connections()
-    unauthorized = []
 
-    for conn in active_conns:
-        remote_ip = conn['remote_ip']
-        if remote_ip and remote_ip not in AUTHORIZED_IPS:
-            unauthorized.append(conn)
+def scan_network(config=None):
+    """Return explicit policy findings, not every unlisted Internet destination.
 
-    return unauthorized
+    A block rule takes precedence. Allowlist misses are review-only and only
+    enabled by an explicit policy. No rule match means no conclusion of safety.
+    """
+    policy = load_config() if config is None else validate_config(config)
+    allowed = [parse_network(value) for value in policy['AUTHORIZED_IPS']]
+    blocked = [parse_network(value) for value in policy['BLOCKED_IPS']]
+    findings = []
+    for conn in get_active_connections():
+        if not conn['remote_ip']:
+            continue
+        try:
+            address = parse_address(conn['remote_ip'])
+        except ValueError:
+            findings.append({**conn, 'rule': 'invalid_address', 'severity': 'info',
+                             'reason': 'Dirección no interpretable; revisión manual.',
+                             'remediation_eligible': False})
+            continue
+        rule = next((network for network in blocked if address in network), None)
+        if rule is not None:
+            findings.append({**conn, 'rule': 'blocked_destination', 'severity': 'review',
+                             'reason': f'Coincidencia con bloqueo explícito {rule}; no prueba malware.',
+                             'remediation_eligible': bool(conn.get('process_identity'))})
+        elif policy['ENFORCE_ALLOWLIST'] and not any(address in network for network in allowed):
+            findings.append({**conn, 'rule': 'outside_allowlist', 'severity': 'info',
+                             'reason': 'Fuera de la política permitida; no prueba malware.',
+                             'remediation_eligible': False})
+    return findings
 
-if __name__ == "__main__":
-    print("Scanning for unauthorized connections...")
-    unauthorized = scan_network()
-    if unauthorized:
-        print(f"ALERTA: Se han detectado {len(unauthorized)} conexiones no autorizadas:")
-        for conn in unauthorized:
-            print(f" - Proceso: {conn['process_name']} (PID: {conn['pid']})")
-            print(f"   Local: {conn['laddr']} -> Remoto: {conn['raddr']} [{conn['status']}]")
-    else:
-        print("No se detectaron conexiones sospechosas.")
+
+if __name__ == '__main__':
+    for finding in scan_network():
+        print(finding)
