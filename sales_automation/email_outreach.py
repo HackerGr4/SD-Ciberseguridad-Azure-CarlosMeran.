@@ -1,41 +1,58 @@
-def generate_email(client_name, scan_results=None):
-    """Generates a persuasive sales email based on scan results."""
+"""Borradores locales para presentar una demostración educativa; no envía correo."""
 
-    if not scan_results or not scan_results.get('threats_found', False):
-        # Lead Magnet Email
-        subject = f"Protección gratuita para {client_name} - Análisis de Ciberseguridad"
-        body = f"""
+
+def generate_email(client_name, scan_results=None):
+    """Genera un borrador sin inferir infección, limpieza o criticidad.
+
+    Conserva la interfaz anterior. Si se proporcionan datos, solo cambia el
+    contexto del borrador: no verifica su origen ni interpreta sus contadores,
+    incluidos los campos antiguos threats_found y threat_count.
+    """
+    subject = f"BORRADOR: Demostración educativa de observación de seguridad — {client_name}"
+
+    if scan_results is None:
+        context = (
+            "Esta presentación describe una demostración con datos ficticios. "
+            "No se ha realizado un análisis de tus equipos."
+        )
+    else:
+        context = (
+            "Se proporcionaron datos como contexto para este borrador. Su origen, "
+            "alcance, reglas aplicadas y posibles errores deben revisarse antes "
+            "de describir resultados. Este generador no verifica esos datos ni "
+            "confirma que correspondan a un análisis de tus equipos."
+        )
+
+    body = f"""
 Hola {client_name},
 
-He estado analizando los desafíos de ciberseguridad que enfrentan las empresas de tu sector recientemente.
+Te presento SD-Ciberseguridad-Azure-CarlosMeran., un prototipo educativo que muestra cómo registrar coincidencias con reglas configuradas y documentarlas para revisión humana.
 
-He desarrollado un sistema de auditoría rápida que detecta conexiones no autorizadas y malware en menos de 60 segundos. Me gustaría ofrecerte un escaneo gratuito para asegurar que tus equipos de trabajo están limpios.
+{context}
 
-Solo toma un minuto y te entregaré un reporte profesional en HTML con los resultados. ¿Te interesaría recibirlo hoy?
+La demo utiliza procesos, direcciones y archivos simulados y genera informes HTML y JSON. No inspecciona los procesos o conexiones del equipo ni ejecuta remediaciones reales.
+
+Las coincidencias con reglas de red, patrones de texto o nombres de procesos no prueban infección. La ausencia de coincidencias tampoco demuestra que un equipo esté limpio. El prototipo no incluye firmas de malware verificadas; la cobertura de la observación fuera de la demo depende de permisos y plataforma.
+
+Las pruebas automatizadas con datos simulados comprueban comportamiento programado; no acreditan eficacia de detección, cumplimiento normativo ni un servicio profesional de remediación. No se ofrecen limpieza, protección garantizada o plazos fijos.
+
+El material disponible permite conocer el funcionamiento del prototipo y sus límites. Este borrador no incluye adjuntos ni acredita una revisión de seguridad de tu organización.
 
 Saludos,
-Tu Especialista en Seguridad Digital
-        """
-    else:
-        # Upsell Email after scan
-        subject = f"URGENTE: Hallazgos de seguridad en {client_name}"
-        body = f"""
-Hola {client_name},
+Proyecto SD-Ciberseguridad-Azure-CarlosMeran.
 
-He completado el análisis de seguridad en tu sistema y, lamentablemente, hemos detectado {scan_results.get('threat_count')} puntos críticos que requieren atención inmediata.
-
-Adjunto encontrarás el reporte profesional. Estos hallazgos podrían comprometer la privacidad de tus datos si no se cierran los puertos/procesos detectados.
-
-He preparado un "Pack de Remediación Inmediata" por solo $50 para solucionar esto por ti hoy mismo. ¿Te gustaría que procedamos con la limpieza?
-
-Quedo a la espera de tus noticias.
-        """
+[Borrador de presentación educativa para revisión manual; no enviado.]
+    """
 
     return {"subject": subject.strip(), "body": body.strip()}
 
+
 if __name__ == "__main__":
-    # Demo
-    print("--- EMAIL DE PROSPECCIÓN ---")
-    print(generate_email("Empresa ABC")["body"])
-    print("\n--- EMAIL DE VENTA (AMENAZAS DETECTADAS) ---")
-    print(generate_email("Empresa ABC", {"threats_found": True, "threat_count": 3})["body"])
+    print("--- BORRADOR: PRESENTACIÓN DE LA DEMO ---")
+    print(generate_email("Empresa de ejemplo (ficticia)")["body"])
+    print("\n--- BORRADOR: DATOS DE EJEMPLO PROPORCIONADOS ---")
+    print(generate_email("Empresa de ejemplo (ficticia)", {
+        "schema_version": 2,
+        "summary": {"network_policy_findings": 1},
+        "client_name": "DEMOSTRACIÓN: DATOS SIMULADOS",
+    })["body"])
